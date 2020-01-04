@@ -1,10 +1,9 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
 import * as serviceWorker from './serviceWorker';
 import Files from 'react-files'
 import * as mm from '@magenta/music';
+import { Model } from './Model'
 
 class Drummer extends React.Component {
 
@@ -15,16 +14,17 @@ class Drummer extends React.Component {
   }
 
 
-
-
  render(){
    var inputPianoRoll;
    var outputPianoRoll;
    var player = new mm.Player();
-   var model = new mm.MusicVAE('https://storage.googleapis.com/magentadata/js/checkpoints/groovae/tap2drum_4bar');
+   //var model = new mm.MusicVAE('https://storage.googleapis.com/magentadata/js/checkpoints/groovae/tap2drum_4bar');
+   const model = new Model()
+   model.load();
 
    const drumify = async (ns, tempo, temperature) => {
      const z = await model.encode([ns]);
+     console.log(z);
      const output = await model.decode(z, temperature, undefined, undefined, tempo);
      return output[0];
    }
@@ -32,9 +32,8 @@ class Drummer extends React.Component {
    const onFilesChange = (files) => {
      mm.blobToNoteSequence(files[0]).then( async  (seq) =>  {
        inputPianoRoll = new mm.PianoRollSVGVisualizer(seq, this.input.current);
-       seq.notes = seq.notes.filter((note) => true)
-       var drums = await drumify(seq, 120, 1);
-       console.log(drums);
+       //seq.notes = seq.notes.filter((note) => true)
+       var drums = await model.drumify(seq, 1)
        outputPianoRoll = new mm.PianoRollSVGVisualizer(drums, this.output.current);
      } )
 
