@@ -22,21 +22,19 @@ class Drummer extends React.Component {
    const model = new Model()
    model.load();
 
-   const drumify = async (ns, tempo, temperature) => {
-     const z = await model.encode([ns]);
-     console.log(z);
-     const output = await model.decode(z, temperature, undefined, undefined, tempo);
-     return output[0];
-   }
+   // const drumify = async (ns, tempo, temperature) => {
+   //   const z = await model.encode([ns]);
+   //   console.log(z);
+   //   const output = await model.decode(z, temperature, undefined, undefined, tempo);
+   //   return output[0];
+   // }
 
    const onFilesChange = (files) => {
      mm.blobToNoteSequence(files[0]).then( async  (seq) =>  {
        inputPianoRoll = new mm.PianoRollSVGVisualizer(seq, this.input.current);
-       //seq.notes = seq.notes.filter((note) => true)
        var drums = await model.drumify(seq, 1)
        outputPianoRoll = new mm.PianoRollSVGVisualizer(drums, this.output.current);
      } )
-
      console.log(mm);
    }
    const onFilesError = (error, file) => {
@@ -44,6 +42,7 @@ class Drummer extends React.Component {
    }
 
    const startOrStop = (seq) => {
+      console.log(seq);
       if (player.isPlaying()) {
         player.stop();
         // playBtn.textContent = 'Play';/
@@ -51,6 +50,12 @@ class Drummer extends React.Component {
         player.start(seq);
         // playBtn.textContent = 'Stop';
       }
+    }
+
+    const combineSeqs = (seq1, seq2) =>{
+      let newSeq = Object.assign({}, seq1);
+      newSeq.notes = [...seq1.notes, ...seq2.notes];
+      return newSeq;
     }
 
    return <div className="files">
@@ -71,7 +76,8 @@ class Drummer extends React.Component {
               <button onClick={() => startOrStop(inputPianoRoll.noteSequence)}>dale al play</button>
               <svg ref={this.output}/>
               <button onClick={() => startOrStop(outputPianoRoll.noteSequence)}>dale al play</button>
-              </div>
+              <button onClick={() => startOrStop(combineSeqs(outputPianoRoll.noteSequence, inputPianoRoll.noteSequence))}>play all</button>
+        </div>
  }
 }
 

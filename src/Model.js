@@ -17,18 +17,11 @@
 
 import { MusicVAE } from '@magenta/music';
 import { reconstructBySize } from './shared';
-import { resolve } from 'path';
 
 const modelPath = 'http://storage.googleapis.com/magentadata/js/checkpoints/';
 
 export class Model {
 	constructor() {
-		// const models = [
-		// 	resolve(modelPath, 'groovae/tap2drum_1bar'),
-		// 	resolve(modelPath, 'groovae/tap2drum_2bar'),
-		// 	resolve(modelPath, 'groovae/tap2drum_3bar'),
-		// 	resolve(modelPath, 'groovae/tap2drum_4bar')
-		// ];
 
 		const models = [
 			modelPath + 'groovae/tap2drum_1bar',
