@@ -16,7 +16,6 @@ class Track extends React.Component {
 
 
   render(){
-    console.log("render Track");
      return  <div className="row">
              <div className="col-1 my-auto">
                 <Button
