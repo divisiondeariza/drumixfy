@@ -51,7 +51,7 @@ class Drummer extends React.Component {
                   Drop files here or click to upload
                 </div>
             </Files>
-            <TrackCanvas sequences={[this.seq, this.drums].filter((seq) => seq != undefined)}/>
+            <TrackCanvas sequences={[this.seq, this.drums].filter((seq) => seq !== undefined)}/>
 
         </div>
  }

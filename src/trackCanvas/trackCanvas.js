@@ -1,25 +1,21 @@
 import React from 'react';
 import * as mm from '@magenta/music';
-import Button from 'react-bootstrap/Button';
 import Track from './track'
-
+import PlayButton from './playBtn'
 
 class TrackCanvas extends React.Component {
   constructor(props) {
     super(props);
     this.state = { isPlaying:false }
-    this.player = new mm.Player();
+    this.onTogglePlay = () => { this.setState({ isPlaying: this.player.isPlaying() }) }
+    this.player = new mm.Player(false, {
+      run: () => {},
+      stop: this.onTogglePlay
+    });
     this.sequences = props.sequences;
   }
+
  render(){
-   const startOrStop = (seq) => {
-      if (this.player.isPlaying()) {
-        this.player.stop();
-      } else {
-        this.player.start(seq);
-      }
-      this.setState({ isPlaying:this.player.isPlaying() })
-    }
 
     const combineSeqs = (sequences) =>{
       let newSeq = Object.assign({}, sequences[0]);
@@ -29,14 +25,27 @@ class TrackCanvas extends React.Component {
       return newSeq;
     }
 
+    const onTogglePlay = () => {
+      this.setState({ isPlaying: this.player.isPlaying() })
+    }
+
+    let PlayAllBtn = this.props.sequences.length > 0?<PlayButton seq={combineSeqs(this.props.sequences)}
+                                                                 player={this.player}
+                                                                 onTogglePlay={this.onTogglePlay}/>:"";
+
     return <div className="tracks container">
                 {this.props.sequences.map((seq, index)=> {
-                  return <Track seq={seq} startOrStop={startOrStop} isPlaying={this.player.isPlaying()} key={index}/>
+                  return <div className="row" key={index} >
+                            <div className="col-1 my-auto">
+                              <PlayButton seq={seq} player={this.player} onTogglePlay={this.onTogglePlay}/>
+                            </div>
+                             <div className="col-11">
+                              <Track seq={seq}/>
+                             </div>
+                           </div>
                 })}
                 <div className={"row" + (this.props.sequences.length > 0?"":" d-none")}>
-                  <Button onClick={() => startOrStop(combineSeqs(this.props.sequences))}>
-                  {this.player.isPlaying()?"stop":"play"} all
-                  </Button>
+                  {PlayAllBtn}
                 </div>
             </div>
  }
