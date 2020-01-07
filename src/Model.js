@@ -30,7 +30,6 @@ export class Model {
 			modelPath + 'groovae/tap2drum_4bar'
 		];
 
-		console.log(models);
 		this.models = models.map(url => new MusicVAE(url));
 	}
 
