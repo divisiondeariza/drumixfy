@@ -4,52 +4,73 @@ import * as serviceWorker from './serviceWorker';
 import Files from 'react-files'
 import * as mm from '@magenta/music';
 import { Model } from './Model'
+import 'bootstrap/dist/css/bootstrap.min.css';
+import './index.css';
+import Button from 'react-bootstrap/Button';
+
+class Track extends React.Component {
+  constructor(props) {
+    super(props);
+    this.seq = props.seq;
+    this.ref = React.createRef();
+    this.startOrStop = props.startOrStop;
+  }
+
+  componentDidMount(){
+    this.pianoRoll = new mm.PianoRollSVGVisualizer(this.seq, this.ref.current);
+  }
+
+
+  render(){
+    console.log("render Track");
+     return  <div className="row">
+             <div className="col-1 my-auto">
+                <Button
+                  variant="primary"
+                  onClick={() => this.startOrStop(this.seq)}
+                >{this.props.isPlaying?"stop":"play"}</Button>
+             </div>
+              <div className="col-11">
+               <svg ref={this.ref}/>
+              </div>
+             </div>
+  }
+}
 
 class Drummer extends React.Component {
 
   constructor(props) {
     super(props);
-    this.input = React.createRef();
-    this.output = React.createRef();
+    this.state = { isFileLoaded:false, isPlaying:false }
+    this.model = new Model();
+    this.model.load();
+    this.player = new mm.Player();
   }
 
 
  render(){
-   var inputPianoRoll;
-   var outputPianoRoll;
-   var player = new mm.Player();
-   //var model = new mm.MusicVAE('https://storage.googleapis.com/magentadata/js/checkpoints/groovae/tap2drum_4bar');
-   const model = new Model()
-   model.load();
-
-   // const drumify = async (ns, tempo, temperature) => {
-   //   const z = await model.encode([ns]);
-   //   console.log(z);
-   //   const output = await model.decode(z, temperature, undefined, undefined, tempo);
-   //   return output[0];
-   // }
 
    const onFilesChange = (files) => {
      mm.blobToNoteSequence(files[0]).then( async  (seq) =>  {
-       inputPianoRoll = new mm.PianoRollSVGVisualizer(seq, this.input.current);
-       var drums = await model.drumify(seq, 1)
-       outputPianoRoll = new mm.PianoRollSVGVisualizer(drums, this.output.current);
+       this.seq = seq;
+       this.drums = await this.model.drumify(seq, 1);
+       this.setState({ isFileLoaded:true })
      } )
      console.log(mm);
    }
+
    const onFilesError = (error, file) => {
      console.log('error code ' + error.code + ': ' + error.message);
    }
 
    const startOrStop = (seq) => {
-      console.log(seq);
-      if (player.isPlaying()) {
-        player.stop();
-        // playBtn.textContent = 'Play';/
+
+      if (this.player.isPlaying()) {
+        this.player.stop();
       } else {
-        player.start(seq);
-        // playBtn.textContent = 'Stop';
+        this.player.start(seq);
       }
+      this.setState({ isPlaying:this.player.isPlaying() })
     }
 
     const combineSeqs = (seq1, seq2) =>{
@@ -58,25 +79,40 @@ class Drummer extends React.Component {
       return newSeq;
     }
 
-   return <div className="files">
+    let tracks;
+    let files;
+
+    if(this.state.isFileLoaded){
+      tracks =  <div className="tracks container">
+                  <Track seq={this.seq} startOrStop={startOrStop} isPlaying={this.player.isPlaying()}/>
+                  <Track seq={this.drums} startOrStop={startOrStop} isPlaying={this.player.isPlaying()}/>
+                  <div className="row">
+                    <Button onClick={() => startOrStop(combineSeqs(this.seq, this.drums))}>
+                    {this.player.isPlaying()?"stop":"play"} all
+                    </Button>
+                  </div>
+                </div>
+    }
+
+   return <div className="container">
               <Files
-                className='files-dropzone'
+                className={ 'files-dropzone row' + (this.state.isFileLoaded?'':' no-files-droped') }
+                dropActiveClassName="drop-active"
                 onChange={onFilesChange}
                 onError={onFilesError}
-                accepts={['image/png', '.pdf', 'audio/*']}
+                accepts={['audio/*']}
                 multiple
                 maxFiles={3}
                 maxFileSize={10000000}
                 minFileSize={0}
                 clickable
               >
-                Drop files here or click to upload
-              </Files>
-              <svg ref={this.input}/>
-              <button onClick={() => startOrStop(inputPianoRoll.noteSequence)}>dale al play</button>
-              <svg ref={this.output}/>
-              <button onClick={() => startOrStop(outputPianoRoll.noteSequence)}>dale al play</button>
-              <button onClick={() => startOrStop(combineSeqs(outputPianoRoll.noteSequence, inputPianoRoll.noteSequence))}>play all</button>
+                <div className="col-12 text-center my-auto">
+                  Drop files here or click to upload
+                </div>
+            </Files>
+              {tracks}
+
         </div>
  }
 }
