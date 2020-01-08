@@ -7,6 +7,7 @@ import { Model } from './Model'
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './index.css';
 import TrackCanvas from "./trackCanvas/trackCanvas"
+//require('typeface-roboto')
 
 
 class Drummer extends React.Component {
@@ -25,7 +26,9 @@ class Drummer extends React.Component {
    const onFilesChange = (files) => {
      mm.blobToNoteSequence(files[0]).then( async  (seq) =>  {
        this.seq = seq;
+       this.seq.trackInfo = {"origin": "file"}
        this.drums = await this.model.drumify(seq, 1);
+       this.drums.trackInfo = {"origin": "drumify"}
        this.setState({ isFileLoaded:true })
      } )
    }

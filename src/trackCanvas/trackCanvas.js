@@ -2,6 +2,8 @@ import React from 'react';
 import * as mm from '@magenta/music';
 import Track from './track'
 import PlayButton from './playBtn'
+import './styles.css';
+import Button from 'react-bootstrap/Button';
 
 class TrackCanvas extends React.Component {
   constructor(props) {
@@ -38,9 +40,11 @@ class TrackCanvas extends React.Component {
                   return <div className="row" key={index} >
                             <div className="col-1 my-auto">
                               <PlayButton seq={seq} player={this.player} onTogglePlay={this.onTogglePlay}/>
+                              <p className="origin-info">{seq.trackInfo.origin}</p>
                             </div>
-                             <div className="col-11">
+                             <div className={"col-11 track " + seq.trackInfo.origin}>
                               <Track seq={seq}/>
+                              {seq.trackInfo.origin=="drumify"?<Button>mix</Button>:""}
                              </div>
                            </div>
                 })}

@@ -11,6 +11,7 @@ class PlayButton extends React.Component {
 
   render(){
     const startOrStop = (seq) => {
+      console.log(seq);
        if (this.player.isPlaying()) {
          this.player.stop();
        } else {
