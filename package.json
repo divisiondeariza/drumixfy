@@ -40,6 +40,10 @@
   },
   "devDependencies": {
     "gh-pages": "^2.2.0"
+<<<<<<< HEAD
   },
   "homepage": "http://divisiondeariza.github.io/drumixfy"
+=======
+  }
+>>>>>>> ad7b2e3f14fc76cddaeb3526afb2d3126909911c
 }
